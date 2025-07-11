@@ -4,7 +4,7 @@ export interface PointDto {
 }
 
 export interface UserDto {
-  id: string;
+  id: number;
   name: string;
   email: string;
   phoneNumber?: string;
@@ -12,13 +12,12 @@ export interface UserDto {
 }
 
 export interface RiderDto {
-  id: string;
   user: UserDto;
   rating: number;
 }
 
 export interface DriverDto {
-  id: string;
+  id: number;
   user: UserDto;
   rating: number;
   vehicleId?: string;
@@ -26,7 +25,7 @@ export interface DriverDto {
 }
 
 export interface RideRequestDto {
-  id: string;
+  id: number;
   pickupLocation: PointDto;
   dropOffLocation: PointDto;
   paymentMethod: 'CASH' | 'WALLET';
@@ -36,6 +35,21 @@ export interface RideRequestDto {
   driver?: DriverDto;
   requestedTime: string;
   otp?: string;
+}
+
+export interface RideDto {
+  id: number;
+  pickupLocation: PointDto;
+  dropOffLocation: PointDto;
+  createdTime: string;
+  rider: RiderDto;
+  driver: DriverDto;
+  paymentMethod: 'CASH' | 'WALLET';
+  rideStatus: 'CANCELLED' | 'CONFIRMED' | 'ENDED' | 'ONGOING';
+  otp: string;
+  fare: number;
+  startedAt?: string;
+  endedAt?: string;
 }
 
 export interface LoginResponseDto {
@@ -50,7 +64,7 @@ export interface ApiError {
 }
 
 export interface PageRideDto {
-  content: RideRequestDto[];
+  content: RideDto[];
   totalPages: number;
   totalElements: number;
   number: number;
@@ -81,7 +95,7 @@ export interface RideBookingDto {
 }
 
 export interface RatingDto {
-  rideId: string;
+  rideId: number;
   rating: number;
   feedback?: string;
 }

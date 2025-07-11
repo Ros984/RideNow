@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Car, Eye, EyeOff, Mail, Lock, User, Phone, UserCheck } from 'lucide-react';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import toast from 'react-hot-toast';
 
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({

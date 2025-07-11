@@ -1,6 +1,5 @@
 package com.UberDragons.project.uber.UberApp.controllers;
 
-
 import com.UberDragons.project.uber.UberApp.dto.*;
 import com.UberDragons.project.uber.UberApp.services.AuthService;
 import jakarta.servlet.http.Cookie;
@@ -16,64 +15,63 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/signup")
-    ResponseEntity<UserDto> signUp(@RequestBody SignupDto signupDto) {
-        return new ResponseEntity<>(authService.signup(signupDto), HttpStatus.CREATED);
+    public ResponseEntity<UserDto> signUp(@RequestBody SignupDto signupDto) {
+        System.out.println("📝 AuthController: Signup request received for: " + signupDto.getEmail());
+        try {
+            UserDto user = authService.signup(signupDto);
+            System.out.println("✅ AuthController: Signup successful");
+            return new ResponseEntity<>(user, HttpStatus.CREATED);
+        } catch (Exception e) {
+            System.err.println("❌ AuthController: Signup failed: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/onBoardNewDriver/{userId}")
-    ResponseEntity<DriverDto> onBoardNewDriver(@PathVariable Long userId, @RequestBody OnboardDriverDto onboardDriverDto) {
+    public ResponseEntity<DriverDto> onBoardNewDriver(@PathVariable Long userId, @RequestBody OnboardDriverDto onboardDriverDto) {
         return new ResponseEntity<>(authService.onboardNewDriver(userId,
                 onboardDriverDto.getVehicleId()), HttpStatus.CREATED);
     }
 
-//    @PostMapping("/login")
-//    ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto,
-//                                           HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-//        String tokens[] = authService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
-//
-//        Cookie cookie = new Cookie("token", tokens[1]);
-//        cookie.setHttpOnly(true);
-//
-//        httpServletResponse.addCookie(cookie);
-//
-//        return ResponseEntity.ok(new LoginResponseDto(tokens[0]));
-//    }
-
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto,
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto,
                                    HttpServletRequest request, HttpServletResponse response) {
         try {
-            System.out.println("🔐 Login attempt for: " + loginRequestDto.getEmail());
+            System.out.println("🔐 AuthController: Login request received for: " + loginRequestDto.getEmail());
 
             String[] tokens = authService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
 
-            Cookie cookie = new Cookie("token", tokens[1]);
+            Cookie cookie = new Cookie("refreshToken", tokens[1]);
             cookie.setHttpOnly(true);
+            cookie.setPath("/");
             response.addCookie(cookie);
 
+            System.out.println("✅ AuthController: Login successful, tokens generated");
             return ResponseEntity.ok(new LoginResponseDto(tokens[0]));
         } catch (Exception e) {
-            System.err.println("❌ Login error: " + e.getMessage());
-            e.printStackTrace(); // 🧨 This will finally show the real backend error in console
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Login failed: " + e.getMessage());
+            System.err.println("❌ AuthController: Login error: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
         }
     }
 
     @GetMapping("/user")
     public ResponseEntity<UserDto> getUserByEmail(@RequestParam String email) {
         try {
+            System.out.println("🔍 AuthController: Get user request for: " + email);
             UserDto user = authService.findByEmail(email);
+            System.out.println("✅ AuthController: User found");
             return ResponseEntity.ok(user);
         } catch (Exception e) {
+            System.err.println("❌ AuthController: User not found: " + e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
@@ -92,13 +90,10 @@ public class AuthController {
     }
 
     @GetMapping("/roles")
-    public ResponseEntity<?> getUserRoles(@RequestParam String email) {
-
-        UserDto user = authService.findByEmail(email); // Or however you load user
+    public ResponseEntity<String[]> getUserRoles(@RequestParam String email) {
+        UserDto user = authService.findByEmail(email);
         if (user == null) return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(user.getRoles()); // Or return just role list
+        return ResponseEntity.ok(user.getRoles().toArray(new String[0]));
     }
-
-
 }

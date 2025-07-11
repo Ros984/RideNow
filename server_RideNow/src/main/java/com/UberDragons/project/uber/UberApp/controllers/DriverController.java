@@ -1,17 +1,15 @@
 package com.UberDragons.project.uber.UberApp.controllers;
 
-import org.springframework.data.domain.Page;
-import com.UberDragons.project.uber.UberApp.dto.RatingDto;
-import com.UberDragons.project.uber.UberApp.dto.DriverDto;
-import com.UberDragons.project.uber.UberApp.dto.RideDto;
-import com.UberDragons.project.uber.UberApp.dto.RideStartDto;
-import com.UberDragons.project.uber.UberApp.dto.RiderDto;
+import com.UberDragons.project.uber.UberApp.dto.*;
 import com.UberDragons.project.uber.UberApp.services.DriverService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -61,11 +59,8 @@ public class DriverController {
 
     @GetMapping("/availableRides")
     public ResponseEntity<List<RideRequestDto>> getAvailableRides() {
-        // This should return available ride requests that drivers can accept
-        // For now, return empty list - you'll need to implement this in the service
+        // TODO: Implement this in the service layer
+        // For now, return empty list
         return ResponseEntity.ok(List.of());
     }
-
-
 }
-

@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.UberDragons.project.uber.UberApp.entities.enums.Role.DRIVER;
 
@@ -42,21 +43,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public String[] login(String email, String password) {
+        System.out.println("🔐 AuthService: Attempting login for email: " + email);
+        
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
         );
 
         User user = (User) authentication.getPrincipal();
+        System.out.println("✅ AuthService: Authentication successful for user: " + user.getEmail());
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
+        System.out.println("✅ AuthService: Tokens generated successfully");
         return new String[]{accessToken, refreshToken};
     }
 
     @Override
     @Transactional
     public UserDto signup(SignupDto signupDto) {
+        System.out.println("📝 AuthService: Attempting signup for email: " + signupDto.getEmail());
+        
         User user = userRepository.findByEmail(signupDto.getEmail()).orElse(null);
         if(user != null)
             throw new RuntimeConflictException("Cannot signup, User already exists with email "+signupDto.getEmail());
@@ -72,17 +79,29 @@ public class AuthServiceImpl implements AuthService {
         mappedUser.setPassword(passwordEncoder.encode(mappedUser.getPassword()));
         User savedUser = userRepository.save(mappedUser);
 
-//        create user related entities
+        System.out.println("✅ AuthService: User saved with ID: " + savedUser.getId());
+
+        // Create user related entities
         if (savedUser.getRoles().contains(Role.RIDER)) {
             riderService.createNewRider(savedUser);
+            System.out.println("✅ AuthService: Rider profile created");
         }
         walletService.createNewWallet(savedUser);
+        System.out.println("✅ AuthService: Wallet created");
 
-        return modelMapper.map(savedUser, UserDto.class);
+        UserDto userDto = modelMapper.map(savedUser, UserDto.class);
+        // Convert Role enum to strings
+        userDto.setRoles(savedUser.getRoles().stream()
+            .map(Role::name)
+            .collect(Collectors.toSet()));
+        
+        return userDto;
     }
 
     @Override
     public UserDto findByEmail(String email) {
+        System.out.println("🔍 AuthService: Finding user by email: " + email);
+        
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
         
@@ -92,6 +111,7 @@ public class AuthServiceImpl implements AuthService {
             .map(Role::name)
             .collect(Collectors.toSet()));
         
+        System.out.println("✅ AuthService: User found with roles: " + userDto.getRoles());
         return userDto;
     }
 
@@ -123,25 +143,4 @@ public class AuthServiceImpl implements AuthService {
 
         return jwtService.generateAccessToken(user);
     }
-
-    @Override
-    public UserDto findByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-        return modelMapper.map(user, UserDto.class);
-    }
-
 }
-
-
-
-
-
-
-
-
-
-//package com.UberDragons.project.uber.UberApp.services.impl;
-
-
-

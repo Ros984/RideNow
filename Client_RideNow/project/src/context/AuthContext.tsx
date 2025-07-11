@@ -46,25 +46,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('🔐 Attempting login for:', email);
+      
       const response = await authAPI.login({ email, password });
+      console.log('✅ Login response:', response.data);
+      
       const { accessToken } = response.data;
       
       localStorage.setItem('accessToken', accessToken);
-      
       setToken(accessToken);
       
       // Fetch user data separately since backend doesn't return user in login response
       try {
         const userResponse = await authAPI.getUserByEmail(email);
+        console.log('✅ User data:', userResponse.data);
+        
         const userData = userResponse.data;
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
+        
+        toast.success('Login successful!');
       } catch (userError) {
-        console.warn('Could not fetch user data:', userError);
+        console.warn('⚠️ Could not fetch user data:', userError);
+        toast.error('Login successful but could not fetch user data');
       }
       
-      toast.success('Login successful!');
     } catch (error: any) {
+      console.error('❌ Login error:', error);
       toast.error(error.response?.data?.message || 'Login failed');
       throw error;
     }
@@ -72,9 +80,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signup = async (name: string, email: string, phoneNumber: string | undefined, password: string, roles: string[]) => {
     try {
-      await authAPI.signup({ name, email, phoneNumber: phoneNumber || '', password, roles });
+      console.log('📝 Attempting signup for:', email, 'with roles:', roles);
+      
+      await authAPI.signup({ 
+        name, 
+        email, 
+        phoneNumber: phoneNumber || '', 
+        password, 
+        roles 
+      });
+      
+      console.log('✅ Signup successful');
       toast.success('Signup successful! Please login.');
     } catch (error: any) {
+      console.error('❌ Signup error:', error);
       toast.error(error.response?.data?.message || 'Signup failed');
       throw error;
     }
