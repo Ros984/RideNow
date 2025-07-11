@@ -59,6 +59,13 @@ public class DriverController {
         return ResponseEntity.ok(driverService.getAllMyRides(pageRequest));
     }
 
+    @GetMapping("/availableRides")
+    public ResponseEntity<List<RideRequestDto>> getAvailableRides() {
+        // This should return available ride requests that drivers can accept
+        // For now, return empty list - you'll need to implement this in the service
+        return ResponseEntity.ok(List.of());
+    }
+
 
 }
 

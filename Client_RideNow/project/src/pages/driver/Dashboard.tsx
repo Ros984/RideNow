@@ -26,7 +26,9 @@ const DriverDashboard: React.FC = () => {
     try {
       setIsLoading(true);
       const response = await driverAPI.getAvailableRides();
-      setAvailableRides(response.data);
+      // Filter only pending rides
+      const pendingRides = response.data.filter(ride => ride.rideRequestStatus === 'PENDING');
+      setAvailableRides(pendingRides);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to fetch available rides');
     } finally {

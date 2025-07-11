@@ -47,13 +47,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       const response = await authAPI.login({ email, password });
-      const { accessToken, user: userData } = response.data;
+      const { accessToken } = response.data;
       
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('user', JSON.stringify(userData));
       
       setToken(accessToken);
-      setUser(userData);
+      
+      // Fetch user data separately since backend doesn't return user in login response
+      try {
+        const userResponse = await authAPI.getUserByEmail(email);
+        const userData = userResponse.data;
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+      } catch (userError) {
+        console.warn('Could not fetch user data:', userError);
+      }
       
       toast.success('Login successful!');
     } catch (error: any) {
@@ -62,9 +70,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signup = async (name: string, email: string, phoneNumber: string, password: string, roles: string[]) => {
+  const signup = async (name: string, email: string, phoneNumber: string | undefined, password: string, roles: string[]) => {
     try {
-      await authAPI.signup({ name, email, phoneNumber, password, roles });
+      await authAPI.signup({ name, email, phoneNumber: phoneNumber || '', password, roles });
       toast.success('Signup successful! Please login.');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Signup failed');

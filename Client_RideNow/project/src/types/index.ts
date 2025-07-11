@@ -7,8 +7,8 @@ export interface UserDto {
   id: string;
   name: string;
   email: string;
-  phoneNumber: string;
-  roles: string[];
+  phoneNumber?: string;
+  roles: string[]; // This should match backend Role enum values
 }
 
 export interface RiderDto {
@@ -31,17 +31,17 @@ export interface RideRequestDto {
   dropOffLocation: PointDto;
   paymentMethod: 'CASH' | 'WALLET';
   fare: number;
-  rideRequestStatus: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+  rideRequestStatus: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
   rider: RiderDto;
   driver?: DriverDto;
-  createdTime: string;
+  requestedTime: string;
   otp?: string;
 }
 
 export interface LoginResponseDto {
   accessToken: string;
-  refreshToken: string;
-  user: UserDto;
+  refreshToken?: string;
+  user?: UserDto;
 }
 
 export interface ApiError {
@@ -64,7 +64,7 @@ export interface RideStartDto {
 export interface SignupDto {
   name: string;
   email: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   password: string;
   roles: string[];
 }
@@ -81,6 +81,7 @@ export interface RideBookingDto {
 }
 
 export interface RatingDto {
+  rideId: string;
   rating: number;
   feedback?: string;
 }

@@ -42,7 +42,7 @@ const RideCard: React.FC<RideCardProps> = ({ ride, showActions = false, onAction
             </h3>
             <div className="flex items-center space-x-2 text-sm text-gray-500">
               <Clock className="h-4 w-4" />
-              <span>{formatDateTime(ride.createdTime)}</span>
+              <span>{formatDateTime(ride.requestedTime)}</span>
             </div>
           </div>
         </div>

@@ -68,6 +68,16 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<UserDto> getUserByEmail(@RequestParam String email) {
+        try {
+            UserDto user = authService.findByEmail(email);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponseDto> refresh(HttpServletRequest request) {
         String refreshToken = Arrays.stream(request.getCookies()).

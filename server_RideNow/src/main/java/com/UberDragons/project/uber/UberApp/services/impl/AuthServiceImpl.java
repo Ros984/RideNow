@@ -62,15 +62,37 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeConflictException("Cannot signup, User already exists with email "+signupDto.getEmail());
 
         User mappedUser = modelMapper.map(signupDto, User.class);
-        mappedUser.setRoles(Set.of(Role.RIDER));
+        
+        // Convert string roles to Role enum
+        Set<Role> roles = signupDto.getRoles().stream()
+            .map(Role::valueOf)
+            .collect(Collectors.toSet());
+        mappedUser.setRoles(roles);
+        
         mappedUser.setPassword(passwordEncoder.encode(mappedUser.getPassword()));
         User savedUser = userRepository.save(mappedUser);
 
 //        create user related entities
-        riderService.createNewRider(savedUser);
+        if (savedUser.getRoles().contains(Role.RIDER)) {
+            riderService.createNewRider(savedUser);
+        }
         walletService.createNewWallet(savedUser);
 
         return modelMapper.map(savedUser, UserDto.class);
+    }
+
+    @Override
+    public UserDto findByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        
+        UserDto userDto = modelMapper.map(user, UserDto.class);
+        // Convert Role enum to strings
+        userDto.setRoles(user.getRoles().stream()
+            .map(Role::name)
+            .collect(Collectors.toSet()));
+        
+        return userDto;
     }
 
     @Override

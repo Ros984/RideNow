@@ -21,12 +21,9 @@ const Login: React.FC = () => {
     try {
       await login(email, password);
 
-      // ✅ Fetch user separately after login
-      const userResponse = await authAPI.getUserByEmail(email);
-      const user = userResponse.data;
-
-      localStorage.setItem('user', JSON.stringify(user));
-      setUser(user);
+      // Get user from context (already set in login function)
+      const storedUser = localStorage.getItem('user');
+      const user = storedUser ? JSON.parse(storedUser) : null;
 
       // ✅ Redirect based on user role
       if (user?.roles.includes('DRIVER')) {

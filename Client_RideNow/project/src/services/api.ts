@@ -1,24 +1,24 @@
 import axios from 'axios';
 import {
-LoginDto,
-SignupDto,
-LoginResponseDto,
-UserDto,
-RideRequestDto,
-PageRideDto,
-RideStartDto,
-RatingDto,
-RideBookingDto,
+  LoginDto,
+  SignupDto,
+  LoginResponseDto,
+  UserDto,
+  RideRequestDto,
+  PageRideDto,
+  RideStartDto,
+  RatingDto,
+  RideBookingDto,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_REACT_APP_API_URL || 'http://localhost:8080';
 
 // Axios instance
 const api = axios.create({
-baseURL: API_BASE_URL,
-headers: {
-'Content-Type': 'application/json',
-},
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // 🔐 Attach access token automatically
@@ -72,7 +72,7 @@ export const authAPI = {
   onBoardDriver: (userId: string, vehicleId: string) =>
     api.post(`/auth/onBoardNewDriver/${userId}`, { vehicleId }),
   refresh: (refreshToken: string) => api.post<LoginResponseDto>('/auth/refresh', { refreshToken }),
-  getUserByEmail: (email: string) => api.get<UserDto>(`/auth/user?email=${email}`), // newly added
+  getUserByEmail: (email: string) => api.get<UserDto>(`/auth/user?email=${encodeURIComponent(email)}`),
 };
 
 // 🧍 Rider API

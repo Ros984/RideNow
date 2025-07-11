@@ -29,6 +29,9 @@ public class User implements UserDetails {
 
     @Column(unique = true)
     private String email;
+    
+    private String phoneNumber;
+    
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)
